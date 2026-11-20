@@ -27,7 +27,7 @@ Le coordinate delle installazioni precedenti senza `[PointClientSize]` rimangono
 - Copri la finestra con un'applicazione topmost: l'automazione deve riportare Caster in primo piano o bloccare il clic.
 - Togli la calibrazione `PointClientSize` da una copia del file INI: il Worker deve rifiutare il CLIC.
 
-## Recupero finestra dopo minimizzazione (v1.0 candidate)
+## Recupero finestra dopo minimizzazione (v1.0)
 
 - Ogni clic completato salva nella sessione HWND e PID della finestra usata. Il Worker prova a ripristinare proprio quella nella chiusura successiva.
 - Se la finestra non è più valida, il Worker esamina le finestre principali dello stesso eseguibile. Non si fida della prima finestra trovata: scarta finestre figlie e preferisce quelle con **area client valida e dimensioni uguali alla calibrazione**.

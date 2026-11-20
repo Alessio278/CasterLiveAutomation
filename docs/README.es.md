@@ -2,7 +2,7 @@
 
 ![CasterLiveAutomation](../assets/branding/CasterLiveAutomation-logo.png)
 
-**Versión 1.0 - pendiente de validación en Windows**  
+**Versión 1.0 - versión estable y definitiva**  
 **Created by @Alessio278**
 
 [English](../README.md) | [Italiano](README.it.md) | [Français](README.fr.md)
@@ -25,6 +25,6 @@ Para compilaciones de Windows consulta [WINDOWS_BUILD.md](WINDOWS_BUILD.md); no 
 
 ## Seguridad
 
-Windows debe estar desbloqueado y con la sesión iniciada para simular clics. La aplicación detiene las acciones cuando no puede verificar la ventana. Un indicador verde no garantiza que el sonido esté emitiéndose. **La versión 1.0 no está certificada para uso desatendido.**
+Windows debe estar desbloqueado y con la sesión iniciada para simular clics. La aplicación detiene las acciones cuando no puede verificar la ventana. Un indicador verde no garantiza que el sonido esté emitiéndose. **La versión 1.0 es la primera versión estable y definitiva; podrían publicarse futuras actualizaciones.** Las comprobaciones automáticas no sustituyen una prueba supervisada con CasterLive DJ.
 
 Código fuente MIT; el intérprete AutoHotkey tiene su propia licencia. No publiques datos de configuración ni registros personales. **Created by @Alessio278**.

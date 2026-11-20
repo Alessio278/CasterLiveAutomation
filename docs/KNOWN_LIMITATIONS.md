@@ -1,4 +1,4 @@
-# Known limitations - 1.0 candidate
+# Known limitations - 1.0 stable release
 
 - Windows 10/11, interactive user session only; the machine must be awake and unlocked for GUI clicks.
 - Does not verify whether audio is actually broadcasting. SEND is a toggle and must not be retried blindly.

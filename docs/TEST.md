@@ -36,6 +36,6 @@
 - [ ] The EXE pair works on a clean Windows 10/11 system without a separate AutoHotkey installation.
 - [ ] The ZIP contains third-party license notices and no private INI/log.
 - [ ] The EXE checksum, tag, commit and VERSION agree.
-- [ ] No stable GitHub release is advertised before these checks are signed off.
+- [ ] Record which real-world checks were completed for the released build; a stable label and passing CI are not equivalent to supervised CasterLive DJ acceptance.
 
 **Evidence to record:** date, Windows version/DPI, AutoHotkey version, CasterLive DJ version, exact commit, logs with sensitive data redacted, and pass/fail per scenario.

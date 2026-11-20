@@ -2,22 +2,22 @@
 
 CasterLiveAutomation uses two-part public versions (`1.0`, `1.1`, `2.0`). The `VERSION` file is the source of the release tag `vX.Y`. The GUI, Worker protocol and Windows ZIP must agree with `VERSION`.
 
-## Automatic GitHub prereleases
+## Automatic GitHub stable releases
 
 The workflow `.github/workflows/auto-release.yml` runs on pushes to `main` or `master` (only the repository's **default branch** is allowed to publish), on matching version tags and by manual dispatch. On the first push of an unpublished version, the workflow:
 
 1. Reads `VERSION`, checks that it matches `X.Y` and checks existing tags/releases. If already released, it skips rather than republishing an old version.
 2. Runs Python source/privacy checks, then AutoHotkey v2 calendar tests on a GitHub-hosted Windows runner.
 3. Compiles **two** Windows executables with Ahk2Exe using `scripts/Build-Windows.ps1` and packages license notices and SHA256 sums.
-4. Creates tag `vX.Y` at the triggering commit (or uses an existing pushed tag), and publishes a GitHub **prerelease** with the Windows ZIP and ZIP checksum. GitHub generates the release notes.
+4. Creates tag `vX.Y` at the triggering commit (or uses an existing pushed tag), and publishes a GitHub **stable release** with the Windows ZIP and ZIP checksum. GitHub generates the release notes.
 
-This workflow cannot test CasterLive DJ in a real logged-in, unlocked Windows desktop. The output is therefore intentionally marked **prerelease**. The automation only publishes if its steps succeed, but CI success does *not* mean the software is production-ready.
+Version **1.0 is the project's first stable release**. Future updates are optional. CI requires source checks, Windows AutoHotkey calendar tests and a successful two-EXE compilation before publishing. These checks cannot test CasterLive DJ in a real logged-in, unlocked desktop; the stable designation is a release policy, **not** a claim of complete automated runtime certification. Run supervised operational checks before unattended broadcasting.
 
-After a supervised successful manual acceptance of the exact commit and review of third-party runtime licensing, the maintainer may promote that GitHub release to stable. Do not force-move a published tag or silently replace an old version. Increase `VERSION` and the corresponding GUI/Worker version strings when producing a new version.
+Existing releases (including earlier prereleases) and tags are never overwritten automatically. An existing prerelease must be reviewed and promoted manually for the same verified commit and assets; changing the software requires a new version. Never force-move a published tag. Increase `VERSION` and the corresponding GUI/Worker version strings when publishing an update.
 
 GitHub Actions needs permission to create releases and tags (`contents: write`, defined on the release job). The repository can additionally restrict Actions permissions via settings or rulesets; configure them to permit the workflow's intended publication. No personal access token is required for a standard repository using `GITHUB_TOKEN`.
 
-## Acceptance before stable publication
+## Recommended real-world acceptance (outside CI)
 
 - Real Windows GUI, Worker startup and shutdown, calendar behavior, first-run pause and migration.
 - Supervised START/CLOSE with CasterLive DJ, including minimizing, moving and invalid-window recovery; no live broadcast during tests.

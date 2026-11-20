@@ -25,5 +25,15 @@ assert f'"WorkerVersion", "") != "{version}"' in main, 'GUI WorkerVersion differ
 assert f'WState("WorkerVersion", "{version}")' in worker, 'Worker protocol differs from VERSION'
 assert 'CasterLiveAutomation-$version.exe' in (r / 'scripts/Build-Windows.ps1').read_text(encoding='utf-8-sig')
 assert (r / 'third_party/GPL-2.0.txt').exists()
-assert (r / '.github/workflows/auto-release.yml').exists(), 'Missing automatic release workflow'
+release_workflow = (r / '.github/workflows/auto-release.yml').read_text(encoding='utf-8-sig')
+calendar_runner = (r / 'scripts/Run-WindowsCalendarTests.ps1').read_text(encoding='utf-8-sig')
+windows_workflow = (r / '.github/workflows/windows-ahk-tests.yml').read_text(encoding='utf-8-sig')
+assert 'stable release' in release_workflow.lower(), 'Release should be stable'
+assert "'--prerelease'" not in release_workflow, 'Release workflow still publishes prereleases'
+assert 'Run-WindowsCalendarTests.ps1' in release_workflow
+assert 'Run-WindowsCalendarTests.ps1' in windows_workflow
+assert '& $ahk /ErrorStdOut $script | Out-Host' in calendar_runner, 'AutoHotkey GUI invocation must be synchronous'
+assert '$null -eq $code -or $code -ne 0' in calendar_runner, 'Runner must fail on missing/nonzero status'
+assert '& $CompilerPath /in $pair[0] /out $pair[1] /base $AutoHotkeyBase /icon $brandIcon /silent | Out-Host' in (r / 'scripts/Build-Windows.ps1').read_text(encoding='utf-8-sig'), 'Compiler invocation must be synchronous'
+
 print(f'PASS: v{version} public release contracts; no private context required')

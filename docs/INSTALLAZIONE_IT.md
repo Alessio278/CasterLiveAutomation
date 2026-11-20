@@ -13,4 +13,4 @@ Non eliminare o caricare su GitHub i tuoi INI, i log e i file di runtime. Se agg
 
 ## Pacchetto EXE futuro
 
-Lo script Windows `scripts/Build-Windows.ps1` prepara due eseguibili indipendenti da un'installazione AutoHotkey locale. Devono restare insieme nella stessa cartella: GUI e Worker. **Non è ancora stato verificato in questa sessione** e non costituisce una release stabile. Vedi [WINDOWS_BUILD.md](WINDOWS_BUILD.md).
+Lo script Windows `scripts/Build-Windows.ps1` prepara due eseguibili indipendenti da un'installazione AutoHotkey locale. Devono restare insieme nella stessa cartella: GUI e Worker. **Non è stato verificato in questa sessione**: la classificazione stabile della V1.0 non sostituisce un test sorvegliato con CasterLive DJ. Vedi [WINDOWS_BUILD.md](WINDOWS_BUILD.md).

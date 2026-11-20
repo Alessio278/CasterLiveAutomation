@@ -2,7 +2,7 @@
 
 ![CasterLiveAutomation](../assets/branding/CasterLiveAutomation-logo.png)
 
-**Versione 1.0 - verifica Windows ancora necessaria**  
+**Versione 1.0 - release stabile e definitiva**  
 **Created by @Alessio278**
 
 [English](../README.md) | [Español](README.es.md) | [Français](README.fr.md)
@@ -25,6 +25,6 @@ La compilazione Windows è descritta in [WINDOWS_BUILD.md](WINDOWS_BUILD.md): **
 
 ## Sicurezza e stato
 
-L'utente Windows deve essere collegato e il desktop sbloccato. Se la finestra non può essere identificata in modo sicuro, il programma blocca i clic. Lo stato verde non prova che l'audio sia online. **La V1.0 deve ancora superare i test su Windows prima di una release stabile.** Vedi [TEST.md](TEST.md).
+L'utente Windows deve essere collegato e il desktop sbloccato. Se la finestra non può essere identificata in modo sicuro, il programma blocca i clic. Lo stato verde non prova che l'audio sia online. **La 1.0 è la prima release stabile e definitiva; eventuali aggiornamenti potranno seguire.** I controlli automatici non sostituiscono una prova sorvegliata con CasterLive DJ. Vedi [TEST.md](TEST.md).
 
 Licenza del codice sorgente: MIT. Il runtime AutoHotkey possiede una propria licenza. Nessun file locale di impostazioni o log deve essere pubblicato. **Created by @Alessio278**.

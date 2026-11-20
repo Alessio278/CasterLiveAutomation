@@ -44,8 +44,13 @@ $workerExe = Join-Path $package 'CasterLiveAutomation-Worker.exe'
 $brandIcon = Join-Path $repo 'assets\branding\CasterLiveAutomation.ico'
 if (-not (Test-Path $brandIcon)) { throw "Branding icon missing: $brandIcon" }
 foreach ($pair in @(@($guiSrc, $guiExe), @($workerSrc, $workerExe))) {
-    & $CompilerPath /in $pair[0] /out $pair[1] /base $AutoHotkeyBase /icon $brandIcon /silent
-    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $pair[1])) { throw "Compilation failed for $($pair[0])" }
+    # Ahk2Exe is a GUI executable. Pipe its output to make PowerShell wait for it to exit.
+    $LASTEXITCODE = $null
+    & $CompilerPath /in $pair[0] /out $pair[1] /base $AutoHotkeyBase /icon $brandIcon /silent | Out-Host
+    $compilerCode = $LASTEXITCODE
+    if ($null -eq $compilerCode -or $compilerCode -ne 0 -or -not (Test-Path $pair[1])) {
+        throw "Compilation failed for $($pair[0]) (exit code: $compilerCode)"
+    }
 }
 $packageAssets = Join-Path $package 'assets\branding'
 New-Item -ItemType Directory -Force -Path $packageAssets | Out-Null
@@ -65,6 +70,6 @@ if (Test-Path $zip) { Remove-Item -Force $zip }
 Compress-Archive -Path (Join-Path $package '*') -DestinationPath $zip -Force
 $zipChecksum = (Get-FileHash -Path $zip -Algorithm SHA256).Hash.ToLowerInvariant()
 "$zipChecksum  $([IO.Path]::GetFileName($zip))" | Set-Content -Path "$zip.sha256" -Encoding ascii
-Write-Host "Prepared candidate binary ZIP: $zip"
+Write-Host "Prepared Windows binary ZIP: $zip"
 Write-Host "Prepared ZIP checksum: $zip.sha256"
-Write-Host 'WARNING: Windows UI tests, release sign-off and license review are still mandatory.'
+Write-Host 'NOTE: Compiling a stable release does not verify GUI/Caster operation; supervised runtime checks are recommended.'

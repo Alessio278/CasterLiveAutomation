@@ -12,7 +12,7 @@
 
 The GUI can create a Windows Startup shortcut; verify its target if the main file name changed from a prior release. Do not keep old V5 or V3 processes running.
 
-## Binary distribution (after Windows build + qualification)
+## Binary distribution
 
 Run `scripts/Build-Windows.ps1` **on Windows** with AutoHotkey v2 and Ahk2Exe installed. It is designed to produce a ZIP with `CasterLiveAutomation-1.0.exe` and `CasterLiveAutomation-Worker.exe`; both EXEs are required in the same writable folder. The current deliverable does **not** include a tested binary. See [Windows build](WINDOWS_BUILD.md).
 

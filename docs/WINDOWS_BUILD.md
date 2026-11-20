@@ -30,7 +30,7 @@ When running from source the GUI starts a second `.ahk` script via the AutoHotke
 6. Check both binaries close properly and no old Worker remains.
 7. Verify build integrity and third-party license notices; compute checksums for release files.
 
-A source-only ZIP can be distributed before these checks, but **do not label an untested binary as stable**. The build script has not been run in this environment. GitHub Actions can build a prerelease automatically on a hosted Windows runner; its execution is not a real CasterLive DJ test.
+Version 1.0 is designated stable. A successful automatic Windows compilation is a packaging check, **not** confirmation that real START/CLOSE or streaming succeeds with CasterLive DJ. Before unattended use, complete the operational checklist on an unlocked Windows desktop.
 
 ## Application icon
 
@@ -38,4 +38,4 @@ The build script uses `assets/branding/CasterLiveAutomation.ico` with Ahk2Exe's 
 
 ## Automated GitHub build
 
-Push the updated source and a new `VERSION` to the default branch. `.github/workflows/auto-release.yml` installs AutoHotkey v2 and the official Ahk2Exe compiler, runs calendar tests, builds the two EXEs and creates a **prerelease** with a checksum attachment. A matching tag `vX.Y` can also trigger the release. Do not promote the release to stable before completing the acceptance checklist.
+Push the updated source and a new `VERSION` to the default branch. `.github/workflows/auto-release.yml` installs AutoHotkey v2 and the official Ahk2Exe compiler, runs calendar tests, builds the two EXEs and creates a **stable release** with a checksum attachment. A matching tag `vX.Y` can also trigger publication. The automatic tests do not replace supervised CasterLive DJ integration checks.

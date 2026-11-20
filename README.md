@@ -4,11 +4,11 @@
 
 **Open-source Windows scheduling and GUI automation for CasterLive DJ.**
 
-**Version 1.0 - Windows validation pending** · **Created by @Alessio278** · [MIT source license](LICENSE)
+**Version 1.0 - Stable release** · **Created by @Alessio278** · [MIT source license](LICENSE)
 
 [Italiano](docs/README.it.md) | [Español](docs/README.es.md) | [Français](docs/README.fr.md) | [Installation](docs/INSTALLATION.md) | [Testing](docs/TEST.md) | [Known limitations](docs/KNOWN_LIMITATIONS.md)
 
-> **Release qualification:** The 1.0 source has been prepared, but its updated entry point, compiled Windows distribution and full unattended START/CLOSE operation **have not yet passed acceptance testing on Windows**. Do not treat 1.0 as production-certified until the [test plan](docs/TEST.md) and the relevant Actions checks pass for the exact release commit. A green indicator does not prove audio is streaming.
+**Stable release:** CasterLiveAutomation **1.0 is the first definitive, stable version** of the application. Further updates may be released if needed. The Windows build is checked automatically before publication; as with any GUI-based broadcast automation, configure and test START/CLOSE under supervision before unattended use. A green status indicator does not prove that audio is streaming.
 
 ## Features
 
@@ -39,7 +39,7 @@ See [installation](docs/INSTALLATION.md) and [guida italiana](docs/INSTALLAZIONE
 
 The repository includes a **Windows-only build script** at `scripts/Build-Windows.ps1`. When run with an installed AutoHotkey v2 compiler (Ahk2Exe), it is designed to produce **two** autonomous executables in a versioned ZIP: a UI program and a separate scheduler Worker. They must remain in the **same directory**.
 
-The build has **not been run in this environment**; this repository ZIP contains source, not compiled EXEs. A single-executable build, equivalent to StagePad Live's .NET single-file delivery, would require a separate architecture review and testing. Do not publish an untested binary.
+This repository ZIP contains source code, not compiled EXEs; the release workflow builds the Windows package on a Windows runner. A successful build is not a test against a live CasterLive DJ session. A single-executable distribution would require a separate architecture review.
 
 See [Windows build](docs/WINDOWS_BUILD.md), [third-party notices](third_party/README.md), and [release policy](docs/RELEASE_PROCESS.md).
 
@@ -74,7 +74,7 @@ Private collaboration notes (`AI_PROJECT_INSTRUCTIONS.md`, `PROJECT_STATE.md`, `
 - **Source review/static tests:** applicable automated checks can run without Windows.
 - **Windows calendar tests:** must be run on Windows with AutoHotkey v2.
 - **Windows UI and broadcasting test:** requires manual real-window validation.
-- **GitHub release:** GitHub Actions creates an automatic **prerelease** from a newly published `VERSION` on the default branch (or a matching pushed tag). A stable release still requires supervised Windows/CasterLive DJ acceptance. Versioning uses **two components** (`1.0`, `1.1`, `1.2`, `2.0`).
+- **GitHub release:** 1.0 is the **stable** release. GitHub Actions automatically publishes a stable Windows release for a new `VERSION` on the default branch (or a matching pushed tag) after its checks pass. Existing tags/releases are not overwritten. Later versions (`1.1`, `2.0`, etc.) may follow if needed.
 
 See [changelog](CHANGELOG.md), [contributing](CONTRIBUTING.md) and [security](SECURITY.md).
 

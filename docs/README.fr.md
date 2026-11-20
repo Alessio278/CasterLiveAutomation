@@ -2,7 +2,7 @@
 
 ![CasterLiveAutomation](../assets/branding/CasterLiveAutomation-logo.png)
 
-**Version 1.0 - validation Windows encore requise**  
+**Version 1.0 - version stable et définitive**  
 **Created by @Alessio278**
 
 [English](../README.md) | [Italiano](README.it.md) | [Español](README.es.md)
@@ -25,6 +25,6 @@ La compilation Windows est expliquée dans [WINDOWS_BUILD.md](WINDOWS_BUILD.md).
 
 ## Sécurité
 
-La session Windows doit être ouverte et le bureau déverrouillé. Le logiciel refuse les clics lorsque la cible ne peut pas être vérifiée. Un voyant vert ne signifie pas que la diffusion est active. **La version 1.0 nécessite encore des essais Windows avant une publication stable.**
+La session Windows doit être ouverte et le bureau déverrouillé. Le logiciel refuse les clics lorsque la cible ne peut pas être vérifiée. Un voyant vert ne signifie pas que la diffusion est active. **La version 1.0 est la première version stable et définitive ; d'éventuelles mises à jour pourront suivre.** Les contrôles automatisés ne remplacent pas un test supervisé avec CasterLive DJ.
 
 Code source MIT; l'interpréteur AutoHotkey dispose de sa propre licence. Ne publiez jamais vos configurations ou journaux personnels. **Created by @Alessio278**.
