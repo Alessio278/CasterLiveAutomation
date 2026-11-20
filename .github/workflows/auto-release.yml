@@ -1,0 +1,129 @@
+name: Automatic Windows prerelease
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: caster-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Verify version and publication state
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.gate.outputs.publish }}
+      tag: ${{ steps.gate.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check release/tag consistency
+        id: gate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          echo "publish=false" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF_TYPE" == branch && "$GITHUB_REF_NAME" != "$DEFAULT_BRANCH" ]]; then
+            echo "Not the default branch; no release."
+            exit 0
+          fi
+          version="$(tr -d '\r\n' < VERSION)"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::VERSION must have the form X.Y"
+            exit 1
+          fi
+          tag="v${version}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF_TYPE" == tag && "$GITHUB_REF_NAME" != "$tag" ]]; then
+            echo "::error::Pushed tag '$GITHUB_REF_NAME' does not match VERSION '$tag'"
+            exit 1
+          fi
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $tag already exists. Nothing to republish."
+            exit 0
+          fi
+          # Never move a previously published tag to a different commit.
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" | grep -q .; then
+            git fetch --no-tags origin "refs/tags/$tag:refs/tags/$tag"
+            tagged_commit="$(git rev-list -n 1 "refs/tags/$tag")"
+            source_commit="$(git rev-parse HEAD)"
+            if [[ "$tagged_commit" != "$source_commit" ]]; then
+              echo "::error::Tag $tag already points to $tagged_commit, not $source_commit. Bump VERSION or release the tagged commit."
+              exit 1
+            fi
+          fi
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+          echo "Eligible: prerelease $tag for $(git rev-parse HEAD)"
+
+  build-and-publish:
+    name: Test, build and publish prerelease (Windows)
+    needs: prepare
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install AutoHotkey v2
+        shell: pwsh
+        run: |
+          choco install autohotkey.install --version=2.0.28 -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'AutoHotkey v2 install failed' }
+          $ahk = Join-Path $env:ProgramFiles 'AutoHotkey\v2\AutoHotkey64.exe'
+          if (-not (Test-Path $ahk)) { throw "Missing x64 AutoHotkey v2: $ahk" }
+      - name: Install official Ahk2Exe compiler (verified archive)
+        shell: pwsh
+        run: .\scripts\Install-Ahk2Exe.ps1
+      - name: Run Windows calendar tests (no GUI/Caster integration)
+        shell: pwsh
+        run: |
+          $ahk = Join-Path $env:ProgramFiles 'AutoHotkey\v2\AutoHotkey64.exe'
+          & $ahk /ErrorStdOut 'tests/schedule_cases.ahk'
+          if ($LASTEXITCODE -ne 0) { throw 'schedule_cases failed' }
+          & $ahk /ErrorStdOut 'tests/first_run_schedule_cases.ahk'
+          if ($LASTEXITCODE -ne 0) { throw 'first_run_schedule_cases failed' }
+      - name: Compile and package Windows executables
+        shell: pwsh
+        run: .\scripts\Build-Windows.ps1
+      - name: Publish GitHub prerelease
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          $version = (Get-Content 'VERSION' -Raw).Trim()
+          $zip = "dist/CasterLiveAutomation-$version-Windows-x64.zip"
+          $sha = "$zip.sha256"
+          foreach ($path in @($zip, $sha)) {
+            if (-not (Test-Path $path)) { throw "Missing release asset: $path" }
+          }
+          $notes = 'AUTOMATED PREVIEW - not certified for real CasterLive DJ broadcasts. Python static checks, Windows AHK calendar tests and EXE compilation do not validate GUI focus/clicks, real START/CLOSE, DPI or signed-off runtime licensing. Supervised Windows acceptance is required before marking stable. Includes two executables (GUI + Worker).'
+          $title = "CasterLiveAutomation $version - Windows preview"
+          $args = @('release', 'create', $env:RELEASE_TAG, $zip, $sha,
+                    '--title', $title, '--notes', $notes, '--generate-notes',
+                    '--prerelease', '--latest=false')
+          if ($env:GITHUB_REF_TYPE -eq 'tag') {
+            $args += '--verify-tag'
+          } else {
+            # gh creates the new tag at this exact source commit.
+            $args += @('--target', $env:GITHUB_SHA)
+          }
+          & gh @args
+          if ($LASTEXITCODE -ne 0) { throw "Failed to publish GitHub prerelease $env:RELEASE_TAG" }
+          Write-Host "Published preview $env:RELEASE_TAG. Real Windows/Caster acceptance remains pending."

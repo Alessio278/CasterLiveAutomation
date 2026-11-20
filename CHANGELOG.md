@@ -10,8 +10,8 @@ Significant project changes. Public versions use two components (`1.0`, `1.1`, `
 - Updated project attribution to `Created by @Alessio278`.
 - Simplified the source entry point to `CasterLiveAutomation.ahk` while retaining legacy settings/schedule names and non-destructive migration.
 - Kept the multiple-schedule, window-safe click and session logic; the Worker handshake protocol is now `1.0`.
-- Added four-language README documentation, source privacy checks, the three continuity documents, Windows build tooling and release checklist.
-- Planned a two-executable Windows distribution, pending compilation and manual acceptance tests.
+- Added four-language README documentation, source privacy checks, Windows build tooling, an automatic prerelease workflow and release checklist.
+- Prepared automatic GitHub prereleases with two Windows executables; compilation and real CasterLive DJ acceptance remain unverified.
 
 ## [0.5] - Historical pre-release (2026-11-11)
 

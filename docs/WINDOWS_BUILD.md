@@ -30,8 +30,12 @@ When running from source the GUI starts a second `.ahk` script via the AutoHotke
 6. Check both binaries close properly and no old Worker remains.
 7. Verify build integrity and third-party license notices; compute checksums for release files.
 
-A source-only ZIP can be distributed before these checks, but **do not label an untested binary as stable**. The build script has not been run in this environment.
+A source-only ZIP can be distributed before these checks, but **do not label an untested binary as stable**. The build script has not been run in this environment. GitHub Actions can build a prerelease automatically on a hosted Windows runner; its execution is not a real CasterLive DJ test.
 
 ## Application icon
 
 The build script uses `assets/branding/CasterLiveAutomation.ico` with Ahk2Exe's `/icon` parameter for **both** executables, and also includes the ICO in the release ZIP under `assets/branding/`. The GUI uses this file for its title bar and system tray. Do not remove this asset when assembling or moving a compiled installation. If using a custom package layout, preserve this relative path or update `gBrandIcon` accordingly.
+
+## Automated GitHub build
+
+Push the updated source and a new `VERSION` to the default branch. `.github/workflows/auto-release.yml` installs AutoHotkey v2 and the official Ahk2Exe compiler, runs calendar tests, builds the two EXEs and creates a **prerelease** with a checksum attachment. A matching tag `vX.Y` can also trigger the release. Do not promote the release to stable before completing the acceptance checklist.

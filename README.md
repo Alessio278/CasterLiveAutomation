@@ -39,7 +39,7 @@ See [installation](docs/INSTALLATION.md) and [guida italiana](docs/INSTALLAZIONE
 
 The repository includes a **Windows-only build script** at `scripts/Build-Windows.ps1`. When run with an installed AutoHotkey v2 compiler (Ahk2Exe), it is designed to produce **two** autonomous executables in a versioned ZIP: a UI program and a separate scheduler Worker. They must remain in the **same directory**.
 
-The build has **not been run in this environment**; an EXE is not included in the source release. A single-executable build, equivalent to StagePad Live's .NET single-file delivery, would require a separate architecture review and testing. Do not publish an untested binary.
+The build has **not been run in this environment**; this repository ZIP contains source, not compiled EXEs. A single-executable build, equivalent to StagePad Live's .NET single-file delivery, would require a separate architecture review and testing. Do not publish an untested binary.
 
 See [Windows build](docs/WINDOWS_BUILD.md), [third-party notices](third_party/README.md), and [release policy](docs/RELEASE_PROCESS.md).
 
@@ -60,24 +60,21 @@ CasterLiveAutomation.ahk              # GUI, schedule editor, diagnostics
 CasterLiveAutomation_Worker.ahk       # independent scheduler and safe clicks
 CasterLiveAutomation_ScheduleLib.ahk  # calendar and migration utilities
 assets/branding/                      # logo PNG + Windows ICO resources
-scripts/Build-Windows.ps1             # proposed Windows build and packaging
+scripts/Build-Windows.ps1             # Windows build and packaging
 tests/                               # source checks and AHK calendar tests
 docs/                                # guides, safety, translations, release process
 third_party/                         # AutoHotkey license reference
 .github/                              # Issues, PRs, CI
-AI_PROJECT_INSTRUCTIONS.md           # collaboration and verification rules
-PROJECT_KNOWLEDGE.md                  # stable technical knowledge
-PROJECT_STATE.md                      # current status, decisions and next actions
 ```
 
-Configuration, saved schedules, runtime state and logs are created locally and ignored by Git. **Never upload them to Issues or commit them to the public repository.** See [privacy](docs/PRIVACY.md).
+Private collaboration notes (`AI_PROJECT_INSTRUCTIONS.md`, `PROJECT_STATE.md`, `PROJECT_KNOWLEDGE.md`) are intentionally kept **outside** this repository and are never required by CI. Configuration, saved schedules, runtime state and logs are created locally and ignored by Git. **Never upload them to Issues or commit them to the public repository.** See [privacy](docs/PRIVACY.md).
 
 ## Status and development
 
 - **Source review/static tests:** applicable automated checks can run without Windows.
 - **Windows calendar tests:** must be run on Windows with AutoHotkey v2.
 - **Windows UI and broadcasting test:** requires manual real-window validation.
-- **GitHub release:** created manually by the project maintainer after all mandatory checks pass. Versioning uses **two components** (`1.0`, `1.1`, `1.2`, `2.0`).
+- **GitHub release:** GitHub Actions creates an automatic **prerelease** from a newly published `VERSION` on the default branch (or a matching pushed tag). A stable release still requires supervised Windows/CasterLive DJ acceptance. Versioning uses **two components** (`1.0`, `1.1`, `1.2`, `2.0`).
 
 See [changelog](CHANGELOG.md), [contributing](CONTRIBUTING.md) and [security](SECURITY.md).
 

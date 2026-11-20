@@ -1,27 +1,31 @@
-# Release process - shared StagePad methodology
+# Release process - CasterLiveAutomation
 
-CasterLiveAutomation uses **two-part public versions**: `1.0`, `1.1`, `1.2`, ..., `1.9`, `2.0`. For GitHub, use tag `v1.0`; match the **source VERSION**, on-screen title, release notes, commit and packaged filename.
+CasterLiveAutomation uses two-part public versions (`1.0`, `1.1`, `2.0`). The `VERSION` file is the source of the release tag `vX.Y`. The GUI, Worker protocol and Windows ZIP must agree with `VERSION`.
 
-## Definition of done
+## Automatic GitHub prereleases
 
-1. Identify the exact source commit and review the changed files.
-2. Run static checks (`python tests/check_sources.py` and the other Python tests) and Windows AHK calendar tests.
-3. Validate the actual Windows GUI and real CasterLive DJ START/CLOSE with a supervised operator, including minimizing the window.
-4. Compile EXEs only on Windows with Ahk2Exe, and confirm both programs work **together**.
-5. Audit README, translations, privacy, copyright and third-party license files.
-6. Verify the commit, tag, artifacts and checksum list. Never reassign tags solely to conceal a failed build.
-7. Manually publish GitHub release only after the required checks pass. If testing is incomplete, mark the distribution as a candidate/preview and explain the remaining limitations.
+The workflow `.github/workflows/auto-release.yml` runs on pushes to `main` or `master` (only the repository's **default branch** is allowed to publish), on matching version tags and by manual dispatch. On the first push of an unpublished version, the workflow:
 
-## Repository vs public downloads
+1. Reads `VERSION`, checks that it matches `X.Y` and checks existing tags/releases. If already released, it skips rather than republishing an old version.
+2. Runs Python source/privacy checks, then AutoHotkey v2 calendar tests on a GitHub-hosted Windows runner.
+3. Compiles **two** Windows executables with Ahk2Exe using `scripts/Build-Windows.ps1` and packages license notices and SHA256 sums.
+4. Creates tag `vX.Y` at the triggering commit (or uses an existing pushed tag), and publishes a GitHub **prerelease** with the Windows ZIP and ZIP checksum. GitHub generates the release notes.
 
-- GitHub source repository: source code, tests, build script, documentation and continuity files.
-- Windows release ZIP: two compiled EXEs, license notices, installation guide and checksums; no tests, logs or personal INI.
-- Project handoff notes and test reports: maintain separately; do not embed fake Windows test results or upload private telemetry.
+This workflow cannot test CasterLive DJ in a real logged-in, unlocked Windows desktop. The output is therefore intentionally marked **prerelease**. The automation only publishes if its steps succeed, but CI success does *not* mean the software is production-ready.
 
-## Key commands
+After a supervised successful manual acceptance of the exact commit and review of third-party runtime licensing, the maintainer may promote that GitHub release to stable. Do not force-move a published tag or silently replace an old version. Increase `VERSION` and the corresponding GUI/Worker version strings when producing a new version.
 
-Suggested commit: `Prepare CasterLiveAutomation 1.0 release candidate`
+GitHub Actions needs permission to create releases and tags (`contents: write`, defined on the release job). The repository can additionally restrict Actions permissions via settings or rulesets; configure them to permit the workflow's intended publication. No personal access token is required for a standard repository using `GITHUB_TOKEN`.
 
-Suggested future stable tag (after validation): `v1.0`
+## Acceptance before stable publication
 
-No automated publishing to GitHub is implied by generating repository files.
+- Real Windows GUI, Worker startup and shutdown, calendar behavior, first-run pause and migration.
+- Supervised START/CLOSE with CasterLive DJ, including minimizing, moving and invalid-window recovery; no live broadcast during tests.
+- GUI translations and DPI, license and corresponding-source obligations for the AutoHotkey runtime, clean ZIP and archive-history privacy audit.
+- Verify release ZIP checksum, tag, commit, source `VERSION` and compiled GUI/Worker behavior.
+
+## Files in the public repository
+
+Public source, build scripts, tests, documentation and third-party notices belong in Git. Private project notes (`AI_PROJECT_INSTRUCTIONS.md`, `PROJECT_STATE.md`, `PROJECT_KNOWLEDGE.md`), private local INI/log files, saved coordinates and Windows paths must **never** be committed. `.gitignore` cannot remove material from old commits, tags, forks or releases.
+
+See [test checklist](TEST.md), [Windows build](WINDOWS_BUILD.md) and [privacy guidance](PRIVACY.md).

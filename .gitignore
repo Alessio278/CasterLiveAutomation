@@ -34,3 +34,8 @@ __pycache__/
 Thumbs.db
 Desktop.ini
 *~
+
+# Private project context - kept outside the public repository
+AI_PROJECT_INSTRUCTIONS.md
+PROJECT_STATE.md
+PROJECT_KNOWLEDGE.md

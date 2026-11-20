@@ -34,6 +34,8 @@ if (-not (Test-Path $AutoHotkeyBase)) {
 }
 $dist = Join-Path $repo 'dist'
 $package = Join-Path $dist "CasterLiveAutomation-$version-Windows-x64"
+# Do not allow files from an earlier build to leak into this versioned package.
+if (Test-Path $package) { Remove-Item -Force -Recurse $package }
 New-Item -ItemType Directory -Force -Path $package | Out-Null
 $guiSrc = Join-Path $repo 'CasterLiveAutomation.ahk'
 $workerSrc = Join-Path $repo 'CasterLiveAutomation_Worker.ahk'
@@ -61,5 +63,8 @@ $checksums | Set-Content (Join-Path $package 'SHA256SUMS.txt') -Encoding utf8
 $zip = Join-Path $dist "CasterLiveAutomation-$version-Windows-x64.zip"
 if (Test-Path $zip) { Remove-Item -Force $zip }
 Compress-Archive -Path (Join-Path $package '*') -DestinationPath $zip -Force
+$zipChecksum = (Get-FileHash -Path $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+"$zipChecksum  $([IO.Path]::GetFileName($zip))" | Set-Content -Path "$zip.sha256" -Encoding ascii
 Write-Host "Prepared candidate binary ZIP: $zip"
+Write-Host "Prepared ZIP checksum: $zip.sha256"
 Write-Host 'WARNING: Windows UI tests, release sign-off and license review are still mandatory.'
