@@ -1,8 +1,8 @@
-﻿; CasterLiveAutomation v5 - calendario condiviso tra GUI e Worker.
+﻿; CasterLiveAutomation 1.0 - shared calendar validation for GUI and Worker.
 ; Le date speciali sono DATE DI AVVIO. La chiusura puo' essere il giorno dopo.
 
 
-; Migrazione non distruttiva dalla V5.0 precedente.
+; Non-destructive migration from legacy file names.
 ; Non sovrascrive MAI un file nuovo: la configurazione gia' presente ha priorita'.
 ; Necessaria sia alla GUI sia al Worker, che possono essere avviati separatamente.
 CLAMigrateLegacyFiles(settingsPath, schedulesPath, runtimePath, logPath) {
@@ -220,8 +220,8 @@ SValidateAll(jobs) {
 SAssertNoOverlap(first, second) {
     if first["Start"] < second["End"] && second["Start"] < first["End"] {
         msg := "Intervalli sovrapposti: '" first["Name"] "' (" FormatTime(first["Start"], "dd/MM HH:mm")
-        msg .= "–" FormatTime(first["End"], "dd/MM HH:mm") ") e '" second["Name"] "' ("
-        msg .= FormatTime(second["Start"], "dd/MM HH:mm") "–" FormatTime(second["End"], "dd/MM HH:mm") ")"
+        msg .= "-" FormatTime(first["End"], "dd/MM HH:mm") ") e '" second["Name"] "' ("
+        msg .= FormatTime(second["Start"], "dd/MM HH:mm") "-" FormatTime(second["End"], "dd/MM HH:mm") ")"
         throw Error(msg)
     }
 }

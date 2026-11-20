@@ -38,11 +38,10 @@ try {
     ; La stessa data presente anche tra i ricorrenti deve valere una sola volta.
     friday["Dates"] := "2026-11-06"
     SValidateAll([friday])
-
-    MsgBox("Tutti i test logici del calendario sono riusciti.", "CasterLiveAutomation")
+    FileAppend("PASS schedule logic`n", "*")
     ExitApp(0)
 } catch Error as e {
-    MsgBox("TEST FALLITO: " e.Message "`nRiga: " e.Line, "CasterLiveAutomation", "Icon!")
+    FileAppend("FAIL: " e.Message " (line " e.Line ")`n", "**")
     ExitApp(1)
 }
 Assert(value, message) {

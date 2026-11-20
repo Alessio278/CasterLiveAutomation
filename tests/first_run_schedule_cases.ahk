@@ -19,9 +19,9 @@ try {
     jobs := SReadAll(path)
     if jobs.Length != 1 || jobs[1]["Name"] != sample["Name"]
         throw Error("La schedulazione esistente e' stata alterata")
-    MsgBox("Test calendario iniziale vuoto e conservazione riusciti.", "CasterLiveAutomation")
+    FileAppend("PASS first run schedule logic`n", "*")
 } catch Error as e {
-    MsgBox("TEST FALLITO: " e.Message " (riga " e.Line ")", "CasterLiveAutomation", "Icon!")
+    FileAppend("FAIL: " e.Message " (line " e.Line ")`n", "**")
     ExitApp(1)
 } finally {
     try FileDelete(path)

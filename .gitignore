@@ -1,0 +1,36 @@
+# Private configuration and session data - never publish
+*.ini
+*.ini.*
+*.log
+*_Log.txt
+*Log.txt
+Logs/
+logs/
+Profiles/
+Backups/
+Backup_*/
+*.bak
+*.backup
+*.tmp
+*.partial
+*.lnk
+
+# Build output / runtime files / download packages
+dist/
+build/
+*.exe
+*.zip
+*.7z
+*.rar
+*.pdb
+
+# Editor/system
+.vscode/
+.idea/
+__pycache__/
+.pytest_cache/
+*.pyc
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~

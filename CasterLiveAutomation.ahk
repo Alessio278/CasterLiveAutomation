@@ -7,13 +7,16 @@ CoordMode("Mouse", "Client")
 SendMode("Event")
 SetMouseDelay(100)
 
-; CasterLiveAutomation v0.5.0-rc.1 - pre-release; internal protocol V5.
-; Worker V5: le coordinate client sono ricalcolate e verificate prima di ogni clic.
+; CasterLiveAutomation 1.0 - Windows application. Runtime protocol 1.0.
+; Worker: client coordinates are recalculated and validated before each click.
 ; Richiede AutoHotkey v2 e una sessione Windows interattiva e sbloccata.
 
 gCfg := A_ScriptDir "\CasterLiveAutomation_Settings.ini"
 gLog := A_ScriptDir "\CasterLiveAutomation_Log.txt"
 gShortcut := A_Startup "\CasterLiveAutomation.lnk"
+gBrandIcon := A_ScriptDir "\assets\branding\CasterLiveAutomation.ico"
+gSmallBrandIcon := 0
+gLargeBrandIcon := 0
 gMain := ""
 gShownOnce := false
 gTabs := ""
@@ -35,7 +38,7 @@ gLastClockKey := ""
 gLastScheduleCheck := "mai"
 gLastScheduleNote := "In attesa del primo controllo"
 gLastScheduledAction := "Nessun evento eseguito in questa sessione"
-gWorkerScript := A_ScriptDir "\CasterLiveAutomation_Worker.ahk"
+gWorkerScript := A_ScriptDir (A_IsCompiled ? "\CasterLiveAutomation-Worker.exe" : "\CasterLiveAutomation_Worker.ahk")
 gWorkerLastLaunch := ""
 gScheduleFile := A_ScriptDir "\CasterLiveAutomation_Schedules.ini"
 gRuntimeFile := A_ScriptDir "\CasterLiveAutomation_Runtime.ini"
@@ -55,6 +58,7 @@ try {
     SValidateAll(SReadAll(gScheduleFile))
     gPaused := IniRead(gCfg, "V3", "Paused", "1") = "1"
     BuildWindow()
+    ApplyBrandIcon()
     ApplyUITranslations()
     RefreshSchedules()
     SetupTray()
@@ -81,7 +85,7 @@ try {
         gShownOnce := true
     } else
         LogLine("Avviata con Windows in area di notifica")
-    LogLine("GUI v0.5.0 PRE-RELEASE PRONTA | " ScheduleNextSummary())
+    LogLine("GUI 1.0 PRONTA | " ScheduleNextSummary())
     ; Il worker controlla subito il calendario all'avvio.
 } catch Error as e {
     MsgBox("Impossibile avviare CasterLiveAutomation:`n" e.Message "`nRiga " e.Line, "CasterLiveAutomation", "Icon!")
@@ -103,7 +107,7 @@ PrepareConfig() {
         IniWrite("", gCfg, "Config", "ExePath")
     if IniRead(gCfg, "Config", "Process", "") = ""
         IniWrite("CasterLive DJ.exe", gCfg, "Config", "Process")
-    ; Il calendario V5 esiste soltanto in CasterLiveAutomation_Schedules.ini.
+    ; Schedules are stored only in CasterLiveAutomation_Schedules.ini.
     ; Non creare ne' importare schedulazioni all'avvio.
     if IniRead(gCfg, "Buttons", "Names", "") = ""
         IniWrite(DefaultButtonList(), gCfg, "Buttons", "Names")
@@ -271,19 +275,23 @@ WriteSteps(section, steps) {
 
 ; -------------------------- INTERFACCIA ----------------------------
 BuildWindow() {
-    global gMain, gTabs, gControls, gCfg
+    global gMain, gTabs, gControls, gCfg, gBrandIcon
 
-    ; CasterLiveAutomation v0.5: apertura 640x640 (-20% per lato).
+    ; CasterLiveAutomation 1.0: initial size 640x640, resizable.
     ; Le ListView mantengono la stessa altezza di riga; si ridimensiona solo il riquadro.
-    gMain := Gui("+Resize +MinSize640x640", "CasterLiveAutomation  |  v0.5 Pre-release")
+    gMain := Gui("+Resize +MinSize640x640", "CasterLiveAutomation  |  1.0")
     gMain.BackColor := "151515"
     gMain.SetFont("s9 cF1F1F1", "Segoe UI")
 
-    gControls["title"] := gMain.Add("Text", "x18 y10 w460 h29", "CASTERLIVEAUTOMATION")
+    ; Original project icon: source mode uses the .ico file beside the scripts.
+    ; Compiled mode embeds the same icon at build time and ships this asset too.
+    if FileExist(gBrandIcon)
+        gControls["brandIcon"] := gMain.Add("Picture", "x18 y10 w30 h30", gBrandIcon)
+    gControls["title"] := gMain.Add("Text", "x57 y10 w421 h29", "CASTERLIVEAUTOMATION")
     gControls["title"].SetFont("s17 bold cF8F8F8", "Segoe UI")
-    gControls["version"] := gMain.Add("Text", "x510 y15 w106 h20 Right", "v0.5 PRE")
+    gControls["version"] := gMain.Add("Text", "x510 y15 w106 h20 Right", "1.0")
     gControls["version"].SetFont("s9 bold cB5B5B5")
-    gControls["brandSub"] := gMain.Add("Text", "x20 y40 w595 h19", "Creato da Alessio Natalucci")
+    gControls["brandSub"] := gMain.Add("Text", "x20 y40 w595 h19", "Created by @Alessio278")
     gControls["brandSub"].SetFont("s9 cABABAB")
     gControls["status"] := gMain.Add("Text", "x20 y64 w600 h24", "Controllo stato...")
     gControls["status"].SetFont("s10 bold cDCDCDC")
@@ -351,7 +359,7 @@ BuildWindow() {
         gControls["scheduleButtons"].Push(btn)
     }
     gControls["scheduleHelp"] := gMain.Add("Text", "x28 y506 w584 h51",
-        "I giorni selezionati sono quelli dell'AVVIO. 23:00–02:00 termina il giorno successivo.`nDate extra = altri giorni di avvio. Conflitti bloccati al salvataggio.")
+        "I giorni selezionati sono quelli dell'AVVIO. 23:00-02:00 termina il giorno successivo.`nDate extra = altri giorni di avvio. Conflitti bloccati al salvataggio.")
     gControls["scheduleHelp"].SetFont("s9 cAAAAAA")
 
     gTabs.UseTab(3)
@@ -431,6 +439,8 @@ ApplyDarkAppearance() {
 ApplyControlTheme(ctrl) {
     if !HasProp(ctrl, "Hwnd")
         return
+    if ctrl.Type = "Pic"
+        return
     ; Combo e Button: tema Windows neutro (grigio), testo ad alto contrasto.
     ; La forzatura DarkMode_Explorer sui pulsanti nativi causava in alcune
     ; installazioni il testo invisibile fino al passaggio del mouse.
@@ -463,7 +473,7 @@ ResizeWindow(guiObj, minMax, w, h) {
     }
     try {
         contentW := w - 56
-        gControls["title"].Move(18, 10, w-170, 29)
+        gControls["title"].Move(57, 10, w-210, 29)
         gControls["version"].Move(w-124, 15, 106, 20)
         for key in ["brandSub", "status", "details"]
             gControls[key].Move(20, , w-40)
@@ -554,6 +564,25 @@ PositionStepActionRow(flow, y, width) {
     buttonW := Floor((width-4*gap)/5)
     for i, button in gControls[flow "Actions"]
         button.Move(28+(i-1)*(buttonW+gap), y, i=5 ? width-4*(buttonW+gap) : buttonW, 29)
+}
+
+; Branding. The icon path is optional at runtime; a compiled EXE also embeds it.
+; WM_SETICON receives live HICON handles, retained for the lifetime of the GUI.
+ApplyBrandIcon() {
+    global gMain, gBrandIcon, gSmallBrandIcon, gLargeBrandIcon
+    if !FileExist(gBrandIcon)
+        return
+    try TraySetIcon(gBrandIcon)
+    try {
+        gSmallBrandIcon := DllCall("User32\LoadImageW", "Ptr", 0, "WStr", gBrandIcon, "UInt", 1, "Int", 16, "Int", 16, "UInt", 0x10, "Ptr")
+        gLargeBrandIcon := DllCall("User32\LoadImageW", "Ptr", 0, "WStr", gBrandIcon, "UInt", 1, "Int", 32, "Int", 32, "UInt", 0x10, "Ptr")
+        if gSmallBrandIcon
+            DllCall("User32\SendMessageW", "Ptr", gMain.Hwnd, "UInt", 0x80, "Ptr", 0, "Ptr", gSmallBrandIcon, "Ptr")
+        if gLargeBrandIcon
+            DllCall("User32\SendMessageW", "Ptr", gMain.Hwnd, "UInt", 0x80, "Ptr", 1, "Ptr", gLargeBrandIcon, "Ptr")
+    } catch Error as e {
+        LogLine("AVVISO: icona di finestra non impostata: " e.Message)
+    }
 }
 
 SetupTray() {
@@ -701,7 +730,7 @@ OpenStepEditor(flow, idx) {
             pointBox.Choose(n)
     if pointBox.Value = 0
         pointBox.Choose(1)
-    modal.Add("Text", "x20 y155", "Ripetizioni (1–30)")
+    modal.Add("Text", "x20 y155", "Ripetizioni (1-30)")
     repeatBox := modal.Add("Edit", "x20 y180 w115", st["repeat"])
     modal.Add("Text", "x160 y155", "Pausa in millisecondi")
     pauseBox := modal.Add("Edit", "x160 y180 w120", st["pause"])
@@ -733,7 +762,7 @@ SaveStepEditor(*) {
         rep := kind = "click" ? Integer(Trim(d.repeat.Value)) : 1
         pause := kind = "close" ? 0 : Integer(Trim(d.pause.Value))
         if rep < 1 || rep > 30 || pause < 0 || pause > 600000
-            throw Error("Ripetizioni 1–30 e pausa 0–600000 millisecondi.")
+            throw Error("Ripetizioni 1-30 e pausa 0-600000 millisecondi.")
         st := Map("kind", kind, "button", name, "repeat", rep, "pause", pause)
         rows := d.flow = "start" ? gStartSteps : gCloseSteps
         if d.idx
@@ -1400,17 +1429,20 @@ EnsureWorker() {
     ; Evita che un vecchio ordine di arresto sopravviva al riavvio.
     IniWrite("0", gCfg, "State", "WorkerStopRequested")
     if WorkerHealthy() {
-        if IniRead(gCfg, "State", "WorkerVersion", "") != "5.0"
+        if IniRead(gCfg, "State", "WorkerVersion", "") != "1.0"
             throw Error("Un Worker incompatibile risulta attivo. Chiudi i vecchi processi AutoHotkey prima di usare CasterLiveAutomation.")
         return
     }
     if gWorkerLastLaunch != "" && DateDiff(A_Now, gWorkerLastLaunch, "Seconds") < 20
         return
     if !FileExist(gWorkerScript)
-        throw Error("Manca CasterLiveAutomation_Worker.ahk nella cartella dell'applicazione")
+        throw Error("Worker non trovato: " gWorkerScript)
     gWorkerLastLaunch := A_Now
     workerPid := 0
-    Run('"' A_AhkPath '" "' gWorkerScript '"', A_ScriptDir, , &workerPid)
+    if A_IsCompiled
+        Run('"' gWorkerScript '"', A_ScriptDir, , &workerPid)
+    else
+        Run('"' A_AhkPath '" "' gWorkerScript '"', A_ScriptDir, , &workerPid)
     LogLine("WORKER lanciato PID=" workerPid " | " gWorkerScript)
 }
 
@@ -1822,7 +1854,7 @@ InitTranslations() {
     translations["Duplica"] := ["Duplica", "Duplicate", "Dupliquer", "Duplicar"]
     translations["Attiva / Disattiva"] := ["Attiva / Disattiva", "Enable / Disable", "Activer / Désactiver", "Activar / Desactivar"]
     translations["Elimina"] := ["Elimina", "Delete", "Supprimer", "Eliminar"]
-    translations["I giorni selezionati sono quelli dell'AVVIO. 23:00–02:00 termina il giorno successivo.`nDate extra = altri giorni di avvio. Conflitti bloccati al salvataggio."] := ["I giorni selezionati sono quelli dell'AVVIO. 23:00–02:00 termina il giorno successivo.`nDate extra = altri giorni di avvio. Conflitti bloccati al salvataggio.", "Selected days are START days. 23:00–02:00 ends the next day.`nExtra dates add more starts. Overlapping schedules cannot be saved.", "Les jours choisis sont ceux du DÉBUT. 23:00–02:00 se termine le lendemain.`nLes dates supplémentaires ajoutent des départs. Chevauchements bloqués.", "Los días elegidos son de INICIO. 23:00–02:00 termina al día siguiente.`nLas fechas extra añaden inicios. Se bloquean los solapamientos."]
+    translations["I giorni selezionati sono quelli dell'AVVIO. 23:00-02:00 termina il giorno successivo.`nDate extra = altri giorni di avvio. Conflitti bloccati al salvataggio."] := ["I giorni selezionati sono quelli dell'AVVIO. 23:00-02:00 termina il giorno successivo.`nDate extra = altri giorni di avvio. Conflitti bloccati al salvataggio.", "Selected days are START days. 23:00-02:00 ends the next day.`nExtra dates add more starts. Overlapping schedules cannot be saved.", "Les jours choisis sont ceux du DÉBUT. 23:00-02:00 se termine le lendemain.`nLes dates supplémentaires ajoutent des départs. Chevauchements bloqués.", "Los días elegidos son de INICIO. 23:00-02:00 termina al día siguiente.`nLas fechas extra añaden inicios. Se bloquean los solapamientos."]
     translations["SEQUENZA DI AVVIO"] := ["SEQUENZA DI AVVIO", "START SEQUENCE", "SÉQUENCE DE DÉMARRAGE", "SECUENCIA DE INICIO"]
     translations["SEQUENZA DI CHIUSURA  /  DOPO AVVIO RIUSCITO"] := ["SEQUENZA DI CHIUSURA  /  DOPO AVVIO RIUSCITO", "CLOSE SEQUENCE / AFTER SUCCESSFUL START", "SÉQUENCE DE FERMETURE / APRÈS DÉMARRAGE", "SECUENCIA DE CIERRE / TRAS INICIO CORRECTO"]
     translations["PULSANTI  /  COORDINATE RELATIVE ALLA FINESTRA"] := ["PULSANTI  /  COORDINATE RELATIVE ALLA FINESTRA", "BUTTONS / WINDOW-RELATIVE COORDINATES", "BOUTONS / COORDONNÉES RELATIVES À LA FENÊTRE", "BOTONES / COORDENADAS RELATIVAS A LA VENTANA"]
@@ -1896,7 +1928,7 @@ InitTranslations() {
     translations["Ven"] := ["Ven", "Fri", "Ven", "Vie"]
     translations["Sab"] := ["Sab", "Sat", "Sam", "Sáb"]
     translations["Dom"] := ["Dom", "Sun", "Dim", "Dom"]
-    translations["Creato da Alessio Natalucci"] := ["Creato da Alessio Natalucci", "Created by Alessio Natalucci", "Créé par Alessio Natalucci", "Creado por Alessio Natalucci"]
+    translations["Created by @Alessio278"] := ["Created by @Alessio278", "Created by @Alessio278", "Created by @Alessio278", "Created by @Alessio278"]
     return translations
 }
 LanguageChanged(*) {
@@ -1955,7 +1987,7 @@ SetTabCaption(tabCtrl, index, label) {
 ApplyUITranslations() {
     global gControls, gTabs, gPaused
     captions := Map(
-        "brandSub", "Creato da Alessio Natalucci",
+        "brandSub", "Created by @Alessio278",
         "heroLabel", "PROSSIMA ESECUZIONE",
         "overviewHead", "STATO DELLA PROGRAMMAZIONE",
         "refreshButton", "Diagnosi",
@@ -1966,7 +1998,7 @@ ApplyUITranslations() {
         "overviewHelp", "Il motore resta attivo anche con pannello nascosto. La spia ATTIVO non certifica lo streaming.`nPer i clic, Windows deve essere sbloccato. I test agiscono realmente su SEND.",
         "exeLabel", "PROGRAMMA CONTROLLATO (COMUNE A TUTTE LE SCHEDULAZIONI)",
         "browse", "Sfoglia...", "scheduleTitle", "SCHEDULAZIONI",
-        "scheduleHelp", "I giorni selezionati sono quelli dell'AVVIO. 23:00–02:00 termina il giorno successivo.`nDate extra = altri giorni di avvio. Conflitti bloccati al salvataggio.",
+        "scheduleHelp", "I giorni selezionati sono quelli dell'AVVIO. 23:00-02:00 termina il giorno successivo.`nDate extra = altri giorni di avvio. Conflitti bloccati al salvataggio.",
         "startLabel", "SEQUENZA DI AVVIO", "closeLabel", "SEQUENZA DI CHIUSURA  /  DOPO AVVIO RIUSCITO",
         "pointsHeading", "PULSANTI  /  COORDINATE RELATIVE ALLA FINESTRA",
         "addPoint", "Aggiungi", "deletePoint", "Rimuovi", "editPoint", "Modifica X / Y",

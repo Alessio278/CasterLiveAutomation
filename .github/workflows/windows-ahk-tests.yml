@@ -1,0 +1,25 @@
+name: Windows AutoHotkey calendar tests
+on:
+  workflow_dispatch:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  windows-calendar:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install AutoHotkey v2
+        shell: pwsh
+        run: choco install autohotkey.install -y --no-progress
+      - name: Run safe calendar tests
+        shell: pwsh
+        run: |
+          $ahk = "$env:ProgramFiles\AutoHotkey\v2\AutoHotkey64.exe"
+          if (!(Test-Path $ahk)) { throw "AutoHotkey v2 x64 not installed: $ahk" }
+          & $ahk /ErrorStdOut "tests/schedule_cases.ahk"
+          if ($LASTEXITCODE -ne 0) { throw 'schedule_cases failed' }
+          & $ahk /ErrorStdOut "tests/first_run_schedule_cases.ahk"
+          if ($LASTEXITCODE -ne 0) { throw 'first_run_schedule_cases failed' }
+          Write-Host 'Windows calendar tests completed. GUI/Caster integration NOT tested.'

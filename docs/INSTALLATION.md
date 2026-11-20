@@ -1,42 +1,21 @@
-# Installation and setup (Windows)
+# Installation - CasterLiveAutomation 1.0
 
-## Requirements
+## Source distribution (supported workflow for validation)
 
-- Windows 10 or 11, with an interactive, unlocked desktop.
-- **AutoHotkey v2** (not v1), from https://www.autohotkey.com/.
-- CasterLive DJ installed separately. This repository does not include it.
-- A writable directory in your own user profile.
+1. Install [AutoHotkey v2](https://www.autohotkey.com/) and CasterLive DJ independently.
+2. Extract `CasterLiveAutomation.ahk`, `CasterLiveAutomation_Worker.ahk` and `CasterLiveAutomation_ScheduleLib.ahk` to the same **writable** folder (e.g. under Documents).
+3. Double-click `CasterLiveAutomation.ahk`. No BAT, PowerShell launcher or admin rights should be required for ordinary execution.
+4. On a clean first run the application is PAUSED and has zero schedules. Select the target executable, add a schedule and calibrate buttons used by the sequences.
+5. Inspect default START `OPEN -> LOGIN -> STOP x3 -> SEND` and CLOSE `SEND -> NEXT -> CLOSE`. Do not repeatedly press SEND in manual tests.
+6. Choose Resume only after a valid configuration, then perform a full supervised START/CLOSE cycle.
+7. The user must be signed into Windows and the desktop must be unlocked. On exit or PC shutdown, **do not assume** missed events run later.
 
-## Install
+The GUI can create a Windows Startup shortcut; verify its target if the main file name changed from a prior release. Do not keep old V5 or V3 processes running.
 
-1. Download the source preview ZIP from **GitHub Releases**, or use **Code → Download ZIP** for the whole repository.
-2. Extract the ZIP to a new writable folder, such as `Documents\CasterLiveAutomation`. Do not run scripts directly inside a ZIP.
-3. Keep `CasterLiveAutomation_V5.ahk`, `CasterLiveAutomation_Worker.ahk`, and `CasterLiveAutomation_ScheduleLib.ahk` **in the same directory**.
-4. Double-click `CasterLiveAutomation_V5.ahk`. If Windows asks which application to use, choose **AutoHotkey v2**.
-5. The panel begins **PAUSED** and the schedules list is empty on first use.
-6. Configure the CasterLive DJ executable path (`CasterLive DJ.exe`), add and enable a schedule, and register the coordinates of used buttons.
-7. Check the shared action sequences before enabling automation. Default START is `OPEN → LOGIN → STOP ×3 → SEND`. Default CLOSE is `SEND → NEXT → CLOSE`.
-8. Use **Resume automation** only when every required click is configured and CasterLive DJ is not already sending audio.
+## Binary distribution (after Windows build + qualification)
 
-## Basic schedule example
+Run `scripts/Build-Windows.ps1` **on Windows** with AutoHotkey v2 and Ahk2Exe installed. It is designed to produce a ZIP with `CasterLiveAutomation-1.0.exe` and `CasterLiveAutomation-Worker.exe`; both EXEs are required in the same writable folder. The current deliverable does **not** include a tested binary. See [Windows build](WINDOWS_BUILD.md).
 
-To automate Saturday 00:01 to 02:00, choose Saturday, Start `00:01`, End `02:00`. For a Friday evening show from `23:00` to `02:00`, choose Friday; CLOSE will run Saturday morning.
+## Existing installations
 
-## Before going live
-
-Run the manual tests in [TEST.md](TEST.md). Minimize and move the target window between START and CLOSE and confirm both the actions and the logs. Window geometry validation is designed to stop unsafe clicks, not to make every GUI layout reliably automatable.
-
-## Automatic start on Windows
-
-The panel can create an entry in the Windows Startup folder. This starts after user sign-in, **not on a locked desktop before sign-in**. Do not allow a second installation of the automation to run concurrently against the same CasterLive DJ process. Close older versions and remove their Startup links as appropriate.
-
-## Upgrading
-
-- Exit both the panel and the Worker. Verify SEND manually and close CasterLive DJ before replacing files.
-- **Back up** the entire existing folder and INI files before upgrading.
-- Replace the three `.ahk` source files; keep your existing `CasterLiveAutomation_*.ini` files unless deliberately resetting to first-run state.
-- Legacy file name migration is documented in [MIGRATION.md](MIGRATION.md).
-
-## Troubleshooting
-
-See [TROUBLESHOOTING.md](TROUBLESHOOTING.md). For privacy, redact paths, dates and other personal details before reporting bugs.
+Copy the configuration files only after backing up all INI and logs and confirming Caster is not broadcasting. The shared configuration schema is preserved, but an old V5 worker process is incompatible with the new WorkerVersion and must be terminated. See [migration](MIGRATION.md).

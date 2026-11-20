@@ -1,34 +1,24 @@
 # Changelog
 
-All notable changes are documented here. Public product version: **CasterLiveAutomation 0.5 — Pre-release**. Historical internal build versions are preserved in the development-history document.
+Significant project changes. Public versions use two components (`1.0`, `1.1`, `2.0`), independently of the original internal script and Worker protocol names.
 
-## [0.5.0-rc.1] — First public pre-release (2026-11-11)
+## [1.0] - Prepared 2026-11-19 (Windows acceptance pending)
 
-### Features
+- Added original simplified branding assets (horizontal logo, square PNG, multi-size Windows ICO), used in the GUI title, tray, README, and Windows build configuration.
 
-- Multiple non-overlapping schedules with recurring days, exceptional dates, and overnight sessions.
-- START and CLOSE action sequence editor (`open`, `click`, `wait`, `close`).
-- Default labels with optional, initially empty, button coordinates.
-- Safe first run: paused; no preset schedules.
-- Persisted session state and close-after-successful-start logic.
-- Dark, resizable interface with Italian, English, French and Spanish options.
-- Diagnostic activity log, status display, and Windows tray support.
+- Consolidated the prior 0.5 public pre-release into a candidate V1.0 repository.
+- Updated project attribution to `Created by @Alessio278`.
+- Simplified the source entry point to `CasterLiveAutomation.ahk` while retaining legacy settings/schedule names and non-destructive migration.
+- Kept the multiple-schedule, window-safe click and session logic; the Worker handshake protocol is now `1.0`.
+- Added four-language README documentation, source privacy checks, the three continuity documents, Windows build tooling and release checklist.
+- Planned a two-executable Windows distribution, pending compilation and manual acceptance tests.
 
-### Defensive improvements
+## [0.5] - Historical pre-release (2026-11-11)
 
-- Window-aware click geometry and checks before interaction.
-- Remember the CasterLive DJ window selected during successful START and use it for CLOSE when possible.
-- Recover minimized windows conservatively; refuse clicks if window/client validation fails.
-- Unified all project filenames under `CasterLiveAutomation` with legacy settings migration.
+- Multiple non-overlapping schedules, overnight dates, action sequences and safe first run.
+- Window-recovery safeguards with fail-closed click validation.
+- Dark AutoHotkey GUI with four selectable languages and activity diagnostics.
 
-### Known limitations
+## Historical context
 
-- The latest minimized-window close recovery is **not yet verified** by a complete end-to-end Windows test.
-- Interface localization is partial; some advanced strings and logs remain Italian.
-- All schedules share the same target application and START/CLOSE sequences.
-- Requires a signed-in, unlocked interactive Windows desktop.
-- No standalone compiled Windows `.exe` is provided.
-
-The historical `V5` filenames and the Worker protocol value `5.0` remain for compatibility; neither denotes public version 5.0.
-
-For prior pre-public development history, see [Development history](docs/DEVELOPMENT_HISTORY.md).
+The V3.11 scheduler was the basis for the first proven start/close cycles. Subsequent internal V5 changes added multiple schedules and safe window handling; results from earlier versions cannot prove V1.0 Windows compatibility.

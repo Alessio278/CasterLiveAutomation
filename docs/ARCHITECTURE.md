@@ -1,8 +1,8 @@
-# Architettura di CasterLiveAutomation 0.5 (sorgenti interni V5)
+# Architettura di CasterLiveAutomation 1.0
 
 ## Componenti
 
-- `CasterLiveAutomation_V5.ahk`: GUI, coordinate e editor delle sequenze. Gestisce il file delle schedulazioni e la diagnostica, non esegue il controllo orario automatico.
+- `CasterLiveAutomation.ahk`: GUI, coordinate e editor delle sequenze. Gestisce il file delle schedulazioni e la diagnostica, non esegue il controllo orario automatico.
 - `CasterLiveAutomation_ScheduleLib.ahk`: libreria condivisa per serializzazione, validazione, risoluzione di ricorrenze/date eccezionali e controllo conflitti.
 - `CasterLiveAutomation_Worker.ahk`: motore indipendente (timer a 5 secondi) con funzioni di esecuzione dei clic ricavate dalla V3.11 funzionante.
 
@@ -12,7 +12,7 @@ Le schedulazioni sono in `CasterLiveAutomation_Schedules.ini`, **separato** dall
 
 Il sistema usa un solo programma `Config.ExePath` e sequenze `StepsStart`/`StepsClose`, condivisi da tutte le righe. Non esegue schedulazioni simultanee.
 
-La libreria riconosce un intervallo `23:00–02:00` come fine nel giorno successivo. Gli intervalli durano sempre meno di 24 ore. Il validator confronta le ricorrenze su due settimane e ciascuna eccezione con i giorni vicini, distinguendo gli eventi contigui da quelli sovrapposti.
+La libreria riconosce un intervallo `23:00-02:00` come fine nel giorno successivo. Gli intervalli durano sempre meno di 24 ore. Il validator confronta le ricorrenze su due settimane e ciascuna eccezione con i giorni vicini, distinguendo gli eventi contigui da quelli sovrapposti.
 
 ## Stato e idempotenza
 
@@ -25,7 +25,7 @@ Durante `running`, il Worker controlla esclusivamente la fine della sessione att
 - Il programma richiede desktop Windows interattivo sbloccato e non può verificare lo stato reale della trasmissione.
 - Finestra di tolleranza START: 180 secondi; CLOSE: 900 secondi.
 - La compatibilità con fusi orari diversi, cambi ora legale e sospensione prolungata di Windows deve essere verificata in collaudo; il scheduler usa l'orologio locale Windows.
-- Il Worker V5 è nuovo per la scelta del momento di avvio/chiusura. Solo le routine dei clic derivano dal Worker V3.11.
+- Il Worker 1.0 è nuovo per la scelta del momento di avvio/chiusura. Solo le routine dei clic derivano dal Worker V3.11.
 
 ## Azioni e etichette (base RC2 aggiornata)
 

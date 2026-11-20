@@ -1,36 +1,25 @@
-# Aggiornamento e nomi file — CasterLiveAutomation 0.5 pre-release
+# Migration to CasterLiveAutomation 1.0
 
-Il nome ufficiale del progetto, della finestra e del collegamento di avvio Windows è **CasterLiveAutomation**.
-Il programma che viene controllato può continuare a chiamarsi **CasterLive DJ**: non rinominare il suo `.exe`.
+The public version moves from the previous `0.5` pre-release to `1.0` and follows a two-component versioning scheme.
 
-## File correnti
+## File names
 
-- `CasterLiveAutomation_V5.ahk` — pannello principale
-- `CasterLiveAutomation_Worker.ahk` — motore indipendente
-- `CasterLiveAutomation_ScheduleLib.ahk` — libreria condivisa
-- `CasterLiveAutomation_Settings.ini` — eseguibile, pulsanti, sequenze, lingua e pausa
-- `CasterLiveAutomation_Schedules.ini` — calendari e date extra
-- `CasterLiveAutomation_Runtime.ini` — stato di sessione / protezione SEND
-- `CasterLiveAutomation_Log.txt` — attività e diagnosi
+- Previous source entry point: `CasterLiveAutomation_V5.ahk`.
+- Current source entry point: **`CasterLiveAutomation.ahk`**.
+- Shared Worker source: `CasterLiveAutomation_Worker.ahk`.
+- Shared calendar library: `CasterLiveAutomation_ScheduleLib.ahk`.
 
-## Migrazione da versioni precedenti
+The settings, schedule, runtime and log names remain `CasterLiveAutomation_*.ini` / `CasterLiveAutomation_Log.txt`, and continue to be excluded from Git. **Do not delete them** when updating.
 
-1. **Sospendi l'automazione e verifica che CasterLive DJ non trasmetta.** Chiudi il pannello e il Worker precedenti. Non eseguire due versioni contemporaneamente.
-2. Estrai i nuovi file `.ahk` nella cartella usata in precedenza (oppure trasferisci i vecchi INI nella nuova cartella, senza rinominarli).
-3. Avvia `CasterLiveAutomation_V5.ahk`.
-4. Il programma copia automaticamente, **solo se il nuovo file manca**, i file precedenti:
-   - `CasterLiveDJ_Configurazione.ini` → `CasterLiveAutomation_Settings.ini`
-   - `CasterAutomation_Schedules.ini` → `CasterLiveAutomation_Schedules.ini`
-   - `CasterAutomation_Runtime.ini` → `CasterLiveAutomation_Runtime.ini`
-   - `CasterLiveDJ_Log.txt` → `CasterLiveAutomation_Log.txt`
-5. Controlla schedulazioni e stato in *Attività e diagnosi*. Il collegamento di avvio Windows viene aggiornato a `CasterLiveAutomation.lnk` se autorizzato nelle impostazioni.
+## Safe sequence
 
-La copia è **non distruttiva**: i vecchi INI non vengono eliminati o sovrascritti. Se un file con il nuovo nome esiste già, quello è considerato la fonte autorevole e non viene sostituito dal vecchio. Non cancellare lo stato runtime durante una sessione attiva.
+1. Stop broadcasting and verify SEND manually. Exit all old GUI and Worker processes.
+2. Back up the entire installation folder, especially `*.ini` and logs.
+3. Extract the new source files together in a separate folder or update the existing folder without destroying user files.
+4. Start `CasterLiveAutomation.ahk` once to recreate the Windows startup shortcut target, then confirm the shortcut points to the new entry point. Remove any duplicate old startup shortcuts.
+5. Review schedules and sequences. The Worker compatibility protocol now reports `1.0`; old Worker instances cannot be reused.
+6. Test a complete supervised cycle (including minimized CLOSE) before relying on a schedule.
 
-## Prima installazione pulita
+**Rollback:** stop all V1.0 processes, restore the backed-up folder and settings, check the startup shortcut, and verify SEND before resuming broadcasts. Do not mix V5 and V1.0 Worker processes.
 
-Se nessun file preesistente è presente, il programma crea `CasterLiveAutomation_Settings.ini` con **IN PAUSA** e `CasterLiveAutomation_Schedules.ini` senza alcuna schedulazione. È necessario configurare i pulsanti e premere **Riprendi automazione**.
-
-## GitHub
-
-I file `.ini`, i log e i backup sono **personali** e ignorati da `.gitignore`. Non aggiungerli alla repository o agli ZIP di distribuzione.
+This migration preserves the existing on-disk V3-era INI keys for compatibility; renaming these sections is explicitly out of scope.

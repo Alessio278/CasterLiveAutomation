@@ -1,0 +1,30 @@
+name: Static source checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python-checks:
+    name: Python static checks (not a Windows integration test)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Source and repository safety checks
+        run: |
+          python tests/check_sources.py
+          python tests/test_release_contract.py
+          python tests/test_language_ui_regression.py
+          python tests/test_naming_migration.py
+          python tests/test_window_recovery_static.py
+          python tests/test_repository_safety.py
+          python tests/test_documentation_links.py
+          python tests/test_branding_assets.py

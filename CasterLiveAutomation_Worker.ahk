@@ -8,7 +8,7 @@ CoordMode("Mouse", "Client")
 SendMode("Event")
 SetMouseDelay(100)
 
-; CasterLiveAutomation v0.5.0-rc.1 - pre-release. Runtime compatibility protocol remains 5.0.
+; CasterLiveAutomation 1.0. Interactive Windows scheduler, protocol 1.0.
 ; Non eseguire azioni senza sessione confermata. Il pannello puo' essere nascosto.
 wCfg := A_ScriptDir "\CasterLiveAutomation_Settings.ini"
 wLogFilePath := A_ScriptDir "\CasterLiveAutomation_Log.txt"
@@ -30,8 +30,8 @@ try {
         FileAppend("[Session]`r`n", wRuntime, "UTF-16")
         IniWrite("idle", wRuntime, "Session", "Status")
     }
-    WLog("WORKER v0.5 PRE-RELEASE AVVIATO | pianificazioni multiple con controllo conflitti")
-    WState("WorkerVersion", "5.0")
+    WLog("WORKER 1.0 AVVIATO | pianificazioni multiple con controllo conflitti")
+    WState("WorkerVersion", "1.0")
     WState("WorkerStartedAt", A_Now)
     SetTimer(MCheck, 5000)
     MCheck()
