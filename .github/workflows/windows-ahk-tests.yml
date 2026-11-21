@@ -9,10 +9,13 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install AutoHotkey v2
         shell: pwsh
         run: choco install autohotkey.install -y --no-progress
+      - name: Verify native process exit-code capture
+        shell: pwsh
+        run: .\scripts\Test-WindowsProcessRunner.ps1
       - name: Run safe calendar tests
         shell: pwsh
         run: |

@@ -25,3 +25,7 @@ Use the latest source release, switch back to Italian, and try resizing the pane
 ## How to file a useful issue
 
 Provide the product version, Windows version, AutoHotkey version, reproduction steps, expected behavior, observed behavior, and **redacted** relevant log lines. Never attach the local settings, schedules, runtime INI or full unredacted logs.
+
+## GitHub Actions shows `PASS schedule logic` but fails on an empty exit code
+
+Older scripts invoked the GUI-subsystem AutoHotkey interpreter through a PowerShell pipeline and relied on `$LASTEXITCODE`, which can remain empty. The Windows calendar-test and Ahk2Exe build scripts now use `Invoke-WindowsNativeProcess.ps1` to wait for the spawned process and read its own `ExitCode`. The workflows first run `Test-WindowsProcessRunner.ps1`, which checks both exit code 0 and a deliberate exit code 23. The tests do not certify interactions with CasterLive DJ.

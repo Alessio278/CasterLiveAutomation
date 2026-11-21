@@ -19,7 +19,7 @@ source=(root/'CasterLiveAutomation.ahk').read_text(encoding='utf-8-sig')
 assert 'ApplyBrandIcon()' in source and 'TraySetIcon(gBrandIcon)' in source
 assert 'CasterLiveAutomation.ico' in source and 'gControls["brandIcon"]' in source
 build=(root/'scripts/Build-Windows.ps1').read_text()
-assert '/icon $brandIcon' in build
+assert "'/icon', $brandIcon" in build, 'Ahk2Exe must receive branded icon as an argument'
 assert "CasterLiveAutomation.ico" in build
 for doc in ['README.md','docs/README.it.md','docs/README.es.md','docs/README.fr.md']:
     assert 'CasterLiveAutomation-logo.png' in (root/doc).read_text(encoding='utf-8-sig'), doc

@@ -7,6 +7,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+. (Join-Path $PSScriptRoot 'Invoke-WindowsNativeProcess.ps1')
 $version = (Get-Content (Join-Path $repo 'VERSION') -Raw).Trim()
 if ($version -notmatch '^\d+\.\d+$') { throw "Unsupported public version '$version'" }
 # Fail the release build if mandatory source/privacy/version checks fail.
@@ -44,11 +45,13 @@ $workerExe = Join-Path $package 'CasterLiveAutomation-Worker.exe'
 $brandIcon = Join-Path $repo 'assets\branding\CasterLiveAutomation.ico'
 if (-not (Test-Path $brandIcon)) { throw "Branding icon missing: $brandIcon" }
 foreach ($pair in @(@($guiSrc, $guiExe), @($workerSrc, $workerExe))) {
-    # Ahk2Exe is a GUI executable. Pipe its output to make PowerShell wait for it to exit.
-    $LASTEXITCODE = $null
-    & $CompilerPath /in $pair[0] /out $pair[1] /base $AutoHotkeyBase /icon $brandIcon /silent | Out-Host
-    $compilerCode = $LASTEXITCODE
-    if ($null -eq $compilerCode -or $compilerCode -ne 0 -or -not (Test-Path $pair[1])) {
+    # Ahk2Exe is also a GUI-subsystem executable. Use its actual process exit
+    # status rather than $LASTEXITCODE, and check that it produced the EXE.
+    $compilerCode = Invoke-CasterNativeProcess -FilePath $CompilerPath -Arguments @(
+        '/in', $pair[0], '/out', $pair[1], '/base', $AutoHotkeyBase,
+        '/icon', $brandIcon, '/silent'
+    ) -WorkingDirectory $repo -TimeoutSeconds 300
+    if ($compilerCode -ne 0 -or -not (Test-Path -LiteralPath $pair[1])) {
         throw "Compilation failed for $($pair[0]) (exit code: $compilerCode)"
     }
 }

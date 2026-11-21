@@ -1,19 +1,17 @@
-# Run the two logic-only AutoHotkey v2 tests reliably from Windows PowerShell / pwsh.
-# AutoHotkey64.exe is a GUI-subsystem executable: an unpiped call may run asynchronously
-# and leave $LASTEXITCODE stale. Piping to Out-Host makes the invocation synchronous.
+# Logic-only tests for AutoHotkey v2 on Windows (not CasterLive DJ acceptance).
+# A GUI-subsystem executable may print PASS while $LASTEXITCODE stays $null.
+# Read its real exit code from System.Diagnostics.Process instead.
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+. (Join-Path $PSScriptRoot 'Invoke-WindowsNativeProcess.ps1')
 $ahk = Join-Path $env:ProgramFiles 'AutoHotkey\v2\AutoHotkey64.exe'
 if (-not (Test-Path -LiteralPath $ahk)) { throw "AutoHotkey v2 x64 not installed: $ahk" }
 
 foreach ($relative in @('tests/schedule_cases.ahk', 'tests/first_run_schedule_cases.ahk')) {
     $script = Join-Path $repo $relative
     Write-Host "Running $relative"
-    # A fresh exit value must come from this process, not an earlier native command.
-    $LASTEXITCODE = $null
-    & $ahk /ErrorStdOut $script | Out-Host
-    $code = $LASTEXITCODE
-    if ($null -eq $code -or $code -ne 0) {
+    $code = Invoke-CasterNativeProcess -FilePath $ahk -Arguments @('/ErrorStdOut', $script) -WorkingDirectory $repo -TimeoutSeconds 90
+    if ($code -ne 0) {
         throw "AutoHotkey test failed: $relative (process exit code: $code)"
     }
 }
