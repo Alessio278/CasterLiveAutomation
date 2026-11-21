@@ -11,5 +11,11 @@ for text in (main,worker):
 assert 'CasterLiveDJ_Configurazione.ini' in lib
 assert 'CasterAutomation_Schedules.ini' in lib
 assert 'CasterLiveAutomation.lnk' in main
+# Legacy Win-start links can have arbitrary names; clean only exact old script targets.
+assert 'Loop Files startupFolder' in main
+assert 'A_StartupCommon' in main
+assert 'casterlivedj_v5.ahk' in main
+assert 'FileGetShortcut(legacy, &oldTarget, , &oldArgs)' in main
+assert 'StrLower(legacy) = StrLower(gShortcut)' in main
 assert not (r/'CasterLiveAutomation_V5.ahk').exists()
 print('PASS: new entrypoint, non-destructive data migration and startup link')

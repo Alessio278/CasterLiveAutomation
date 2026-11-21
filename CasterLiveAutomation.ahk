@@ -932,17 +932,26 @@ FinishCapture(*) {
 ; ------------------------ AVVIO AUTOMATICO --------------------------
 EnsureStartupLink() {
     global gShortcut
-    for legacy in [A_Startup "\CasterLive DJ V3.lnk", A_Startup "\CasterLiveDJ V3.lnk", A_Startup "\Caster Automation.lnk"] {
-        if !FileExist(legacy)
+    ; Elimina solo collegamenti che richiamano esplicitamente vecchi script noti.
+    ; Il nome del .lnk puo' variare, quindi controlliamo destinazione e argomenti.
+    ; Non modifica attivita' pianificate, registro o programmi di terze parti.
+    for startupFolder in [A_Startup, A_StartupCommon] {
+        if !DirExist(startupFolder)
             continue
-        try {
-            FileGetShortcut(legacy, &oldTarget, , &oldArgs)
-            if InStr(StrLower(oldArgs " " oldTarget), "casterlivedj_v3.ahk") || InStr(StrLower(oldArgs " " oldTarget), "casterliveautomation_v5.ahk") {
-                FileDelete(legacy)
-                LogLine("MIGRAZIONE AUTOSTART: rimosso vecchio collegamento Caster")
-            }
-        } catch Error as err
-            LogLine("AVVISO: collegamento precedente non migrato: " err.Message)
+        Loop Files startupFolder "\*.lnk", "F" {
+            legacy := A_LoopFileFullPath
+            if StrLower(legacy) = StrLower(gShortcut)
+                continue
+            try {
+                FileGetShortcut(legacy, &oldTarget, , &oldArgs)
+                command := StrLower(oldTarget " " oldArgs)
+                if (InStr(command, "casterlivedj_v3.ahk") || InStr(command, "casterlivedj_v5.ahk") || InStr(command, "casterliveautomation_v5.ahk")) {
+                    FileDelete(legacy)
+                    LogLine("MIGRAZIONE AUTOSTART: rimosso collegamento obsoleto " legacy)
+                }
+            } catch Error as err
+                LogLine("AVVISO: collegamento precedente non migrato (" legacy "): " err.Message)
+        }
     }
     ; Ricrea il collegamento se punta a una versione/cartella diversa.
     args := A_IsCompiled ? "--tray" : '"' A_ScriptFullPath '" --tray'

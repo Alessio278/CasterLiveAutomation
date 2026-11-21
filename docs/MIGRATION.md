@@ -16,7 +16,7 @@ The settings, schedule, runtime and log names remain `CasterLiveAutomation_*.ini
 1. Stop broadcasting and verify SEND manually. Exit all old GUI and Worker processes.
 2. Back up the entire installation folder, especially `*.ini` and logs.
 3. Extract the new source files together in a separate folder or update the existing folder without destroying user files.
-4. Start `CasterLiveAutomation.ahk` once to recreate the Windows startup shortcut target, then confirm the shortcut points to the new entry point. Remove any duplicate old startup shortcuts.
+4. Inspect `shell:startup` and `shell:common startup`: remove shortcuts that still point to old `CasterLiveDJ_V5.ahk` or other retired Caster scripts. Start `CasterLiveAutomation.ahk` once to recreate the Windows startup shortcut target. The new app also attempts to remove recognized obsolete startup links when it runs, but it cannot prevent errors triggered by those links **before** its first launch. If the error persists, inspect Task Scheduler for an old Caster task; remove only the outdated task after confirming its command.
 5. Review schedules and sequences. The Worker compatibility protocol now reports `1.0`; old Worker instances cannot be reused.
 6. Test a complete supervised cycle (including minimized CLOSE) before relying on a schedule.
 
